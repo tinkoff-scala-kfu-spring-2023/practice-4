@@ -1,23 +1,32 @@
 package ru.tinkoff.variance
 
 object Covariance extends App {
-  sealed trait MyList[A] {
-    def contains(a: A): Boolean
+
+  def printMyList(list: MyList[Animal]): Unit = println(list)
+  sealed trait MyList[+A] {
+    def contains[A1 >: A](a: A1): Boolean
   }
-  case class Nil[A]() extends MyList[A] {
-    override def contains(a: A): Boolean = ???
+  case object Nil extends MyList[Nothing] {
+    override def contains[A1 >: Nothing](a: A1): Boolean = false
   }
-  case class Cons[A](head: A, tail: List[A]) extends MyList[A] {
-    override def contains(a: A): Boolean = ???
+  case class Cons[A](head: A, tail: MyList[A]) extends MyList[A] {
+    override def contains[A1 >: A](a: A1): Boolean =
+      if (a == head) true else tail match {
+        case Nil => false
+        case tail => tail.contains(a)
+      }
   }
 
 
-  sealed trait Pet
-  case class Cat() extends Pet
-  case class Dog() extends Pet
+  class Box[A](var a: A)
 
-  val myList: MyList[Pet] = ???
-  def printMyList[A](list: MyList[A]): Unit = ???
+  sealed trait Animal
+  case class Cat() extends Animal
+  case class Dog() extends Animal
+
+  val myList: MyList[Animal] = Cons(Cat(), Cons(Dog(), Nil))
+
+  println(myList.contains(1))
 
   printMyList(myList)
 }
