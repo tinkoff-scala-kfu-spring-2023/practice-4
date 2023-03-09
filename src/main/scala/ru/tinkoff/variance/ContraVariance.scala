@@ -1,7 +1,7 @@
 package ru.tinkoff.variance
 
 object ContraVariance extends App {
-  trait Formatter[A] {
+  trait Formatter[-A] {
     def format(a: A): String
   }
 
@@ -13,11 +13,11 @@ object ContraVariance extends App {
     override def format(a: A): String
   }
 
-  sealed trait Pet {
+  sealed trait Animal {
     def name: String
   }
-  case class Dog(name: String, food: String, treat: String) extends Pet
-  case class Cat(name: String, food: String, toy: String) extends Pet
+  case class Dog(name: String, food: String, treat: String) extends Animal
+  case class Cat(name: String, food: String, toy: String) extends Animal
 
   val catJsonFormatter = new ToJsonFormatter[Cat] {
     override def format(a: Cat): String =
@@ -30,18 +30,18 @@ object ContraVariance extends App {
     override def format(a: Cat): String = a.name
   }
 
-  class Reporter[A](formatter: Formatter[A]) {
-    def report(a: A): Unit = {
+  class Reporter(formatter: Formatter[Cat]) {
+    def report(a: Cat): Unit = {
       println(formatter.format(a))
     }
   }
   val cat = Cat("Steven", "fish", "mice")
-  val petToString = new ToStringFormatter[Pet]
+  val petToString = new ToStringFormatter[Animal]
 
-  val catReporter = new Reporter[Cat](petToString)
+  val catReporter = new Reporter(petToString)
   catReporter.report(cat)
 
-  val petReporter = new Reporter[Cat](catToString)
+  val petReporter = new Reporter(catToString)
   petReporter.report(cat)
 
 }
